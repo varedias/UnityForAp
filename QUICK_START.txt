@@ -1,0 +1,237 @@
+# StarFalling 动画系统 - 快速配置清单
+
+## ✅ 安装步骤（5分钟完成）
+
+### 步骤 1：打开场景设置工具
+```
+菜单: Tools > Star Falling Animation > Scene Setup
+```
+
+### 步骤 2：一键创建场景
+```
+点击 "一键创建场景" 按钮
+等待创建完成
+```
+
+### 步骤 3：验证组件
+检查以下GameObject已创建：
+- ✅ MasterController
+- ✅ Canvas (包含 PriceTag)
+- ✅ StarSpawner
+- ✅ RoadManager
+- ✅ Main Camera
+- ✅ Directional Light
+
+### 步骤 4：播放预览
+```
+点击 Unity 播放按钮 ▶
+观察动画效果
+```
+
+---
+
+## 🎛️ 推荐配置参数
+
+### MasterController
+```
+✓ Auto Play On Start: true
+✓ Start Delay: 0.5 秒
+```
+
+### PriceTagAnimator
+```
+✓ Price String: "¥99"
+✓ Display Duration: 2.0 秒
+✓ Move Up Distance: 300
+✓ Fade Out Duration: 1.5 秒
+```
+
+### StarSpawner
+```
+✓ Total Stars To Spawn: 10
+✓ Spawn Interval: 3.0 秒
+✓ First Star Delay: 0.5 秒
+✓ Spawn Center: (0, 0, 5)
+✓ Spawn Range X: 3
+✓ Spawn Range Z: 2
+```
+
+### RoadManager
+```
+✓ Initial Road Segments: 3
+✓ Segment Length: 10
+✓ Road Width: 8
+✓ Extend Duration: 0.5 秒
+✓ Smooth Transition: true
+```
+
+### CameraController
+```
+✓ Camera Mode: Fixed Angle
+✓ Camera Position: (0, 8, -5)
+✓ Camera Rotation: (55, 0, 0)
+✓ Field Of View: 60
+```
+
+---
+
+## 🎨 可选：创建自定义 Prefab
+
+### 创建星星 Prefab
+```
+1. 菜单: Tools > Star Falling Animation > Prefab Creator
+2. 调整星星参数：
+   - Star Color: 金黄色 (1, 0.9, 0.3)
+   - Star Size: 0.5
+   - Star Spikes: 5
+3. 点击 "创建星星 Prefab"
+4. 在 StarSpawner 中引用生成的 Prefab
+```
+
+### 创建道路 Prefab
+```
+1. 在同一工具中配置道路参数：
+   - Road Length: 10
+   - Road Width: 8
+   - Road Color: 深灰色 (0.2, 0.2, 0.2)
+   - Green Belt Color: 绿色 (0.2, 0.6, 0.2)
+   - Grass Color: 浅绿色 (0.3, 0.7, 0.3)
+2. 点击 "创建道路段 Prefab"
+3. 在 RoadManager 中引用生成的 Prefab
+```
+
+---
+
+## 🌅 环境设置（可选）
+
+### 添加环境控制
+```
+1. 在场景中创建空物体 "Environment"
+2. 添加 EnvironmentSettings 组件
+3. 选择环境预设：
+   - SetDaytimeEnvironment (白天) ✓ 推荐
+   - SetSunsetEnvironment (黄昏)
+   - SetNightEnvironment (夜晚)
+```
+
+---
+
+## 📹 录制设置（用于导出视频）
+
+### 安装 Unity Recorder
+```
+1. Window > Package Manager
+2. 搜索 "Unity Recorder"
+3. 点击 Install
+```
+
+### 配置录制
+```
+1. 在场景中创建空物体 "Recording"
+2. 添加 RecordingHelper 组件
+3. 设置参数：
+   - Target Frame Rate: 60
+   - Recording Start Delay: 1.0
+   - Use Fixed Delta Time: true
+4. 右键组件 > "Prepare For Recording"
+5. Window > General > Recorder > Recorder Window
+6. 配置录制器：
+   - Format: MP4
+   - Quality: High
+   - Frame Rate: 60
+```
+
+---
+
+## ⚡ 性能优化（可选）
+
+### 添加性能优化组件
+```
+1. 在 MasterController 上添加 PerformanceOptimizer 组件
+2. 配置：
+   - Show FPS: true (显示帧率)
+   - Shadow Quality: All (高质量阴影)
+   - Anti Aliasing: 2x (推荐)
+   - Enable Batching: true
+```
+
+### 根据设备选择质量
+```
+高性能设备: SetQualityHigh()
+中等设备: SetQualityMedium()
+低性能设备: SetQualityLow()
+```
+
+---
+
+## 🔧 调试和测试
+
+### 测试快捷键
+```
+Space 键: 重新播放动画
+```
+
+### 查看日志
+```
+Window > General > Console
+查看详细的动画流程日志
+```
+
+### Inspector 实时调试
+```
+运行时修改组件参数可实时查看效果
+大部分参数支持热重载
+```
+
+---
+
+## 📋 验证清单
+
+使用前请确认：
+
+### 必需组件
+- [ ] MasterController 存在且配置正确
+- [ ] PriceTagAnimator 在 Canvas 上且有 TextMeshPro
+- [ ] StarSpawner 存在
+- [ ] RoadManager 存在
+- [ ] 所有组件在 MasterController 中已关联
+
+### 可选组件
+- [ ] Camera 设置正确
+- [ ] 灯光已配置
+- [ ] 环境设置已应用
+- [ ] Prefab 已创建（或使用程序化生成）
+
+### 测试
+- [ ] 播放后价签正常显示
+- [ ] 价签淡出后星星开始掉落
+- [ ] 星星消失时道路延伸
+- [ ] 无报错信息
+
+---
+
+## 🚀 完成！
+
+现在你可以：
+1. ▶ 播放场景预览动画
+2. 🎨 调整参数优化效果
+3. 📹 录制视频导出
+4. 🔧 集成到你的项目
+
+---
+
+## 💡 提示
+
+- 首次运行会自动显示快速启动指南
+- 所有组件都包含右键菜单快捷功能
+- 参考 AnimationAPIExample.cs 了解代码控制
+- 查看 USAGE_GUIDE.txt 获取完整文档
+
+---
+
+**需要帮助？**
+- 右键组件 > Show Recording Guide
+- 菜单 > Tools > Star Falling Animation > Quick Start Guide
+- 查看 Console 中的详细日志
+
+**开始享受你的动画系统吧！** ✨

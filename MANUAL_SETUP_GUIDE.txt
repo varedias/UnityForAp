@@ -1,0 +1,233 @@
+# 手动配置外部资源 - 3分钟完成
+
+## 📍 您的资源位置
+
+已确认资源包在以下位置：
+
+✅ **天空盒**: `Assets/Fantasy Skybox FREE/Cubemaps/Classic/`
+✅ **道路**: `Assets/KajamansRoads/Free/Prefabs/`
+
+---
+
+## 🎯 方法1：最简单 - 直接拖拽（推荐）
+
+### 步骤1：设置天空盒（30秒）
+
+1. **打开光照设置**
+   ```
+   Window > Rendering > Lighting
+   ```
+
+2. **设置天空盒**
+   - 在 Environment 标签下
+   - 找到 "Skybox Material" 字段
+   - 从 Project 窗口拖入天空盒材质：
+     ```
+     Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.mat
+     ```
+   - （或选择其他的 Day/Night 材质）
+
+3. **完成！**
+   - Scene 窗口应该立即显示天空效果
+
+---
+
+### 步骤2：设置道路（30秒）
+
+1. **运行场景设置**
+   ```
+   Tools > Star Falling Animation > Scene Setup
+   点击 "一键创建场景"
+   ```
+
+2. **找到 RoadManager**
+   - 在 Hierarchy 窗口中选择 `RoadManager`
+
+3. **拖入道路预制体**
+   - 在 Inspector 的 RoadManager 组件中
+   - 找到 "Road Segment Prefab" 字段
+   - 从 Project 窗口拖入道路预制体：
+     ```
+     Assets/KajamansRoads/Free/Prefabs/l10km_cc4_sl20_t(12123025)_rw10_wh3_n3_RsBTW_MeshV00.prefab
+     ```
+   - （或任选其他道路预制体）
+
+4. **调整参数（重要）**
+   - Segment Length: 设置为 `10`（根据预制体实际长度）
+   - Road Width: 设置为 `8`
+
+5. **完成！**
+
+---
+
+## 🎯 方法2：使用配置工具
+
+如果自动搜索失败，可以手动操作：
+
+1. **打开配置工具**
+   ```
+   Tools > Star Falling Animation > Configure Assets
+   ```
+
+2. **手动拖入资源**
+   
+   **天空盒部分**:
+   - 从 `Assets/Fantasy Skybox FREE/Cubemaps/Classic/` 
+   - 拖入任意 `.mat` 文件到 "天空盒材质" 字段
+   - 点击 "✅ 应用到场景"
+
+   **道路部分**:
+   - 从 `Assets/KajamansRoads/Free/Prefabs/` 
+   - 拖入任意 `.prefab` 文件到 "道路预制体" 字段
+   - 点击 "✅ 应用到 RoadManager"
+
+3. **完成！**
+
+---
+
+## 🎮 测试效果
+
+1. **保存场景**
+   ```
+   Ctrl + S (或 Cmd + S)
+   ```
+
+2. **播放测试**
+   ```
+   按下播放按钮 ▶
+   ```
+
+3. **检查效果**
+   - ✅ 天空应该显示 Fantasy Skybox 效果
+   - ✅ 地面应该显示道路模型
+   - ✅ 星星消失时道路应该延伸
+
+---
+
+## 📝 推荐的资源选择
+
+### 天空盒推荐（Fantasy Skybox）
+```
+白天场景推荐:
+- FS000_Day_01.mat  （明亮清晨）
+- FS000_Day_02.mat  （正午）
+- FS000_Day_03.mat  （下午）
+
+黄昏场景推荐:
+- FS000_Day_04.mat
+- FS000_Day_05.mat
+
+夜晚场景推荐:
+- FS000_Night_01.mat
+- FS000_Night_02.mat
+```
+
+### 道路预制体推荐（KajamansRoads）
+```
+窄道路:
+- l10km_cc4_sl20_t(12123025)_rw10_wh3_n3_RsBTW_MeshV00.prefab
+
+中等道路:
+- l10km_cc4_sl69_t(1212029)_rw12_wh15_n1_RsBtW_MeshV00.prefab
+
+宽阔道路:
+- l20km_cc2_sl30_t(401509)_rw28_wh15_n1_RsBTW_MeshV00.prefab
+```
+
+---
+
+## ⚙️ 道路参数调整（可选）
+
+如果道路显示不正常，调整这些参数：
+
+### 在 RoadManager 组件中：
+
+```
+Segment Length: 
+- 根据预制体长度调整
+- 窄道路: 10
+- 宽道路: 20-30
+
+Road Width:
+- 根据预制体宽度调整
+- 窄道路: 6-8
+- 宽道路: 12-15
+
+Initial Road Segments:
+- 初始显示的道路段数
+- 建议: 3-5
+
+Rotate Road Prefab:
+- 如果道路方向不对，勾选此项
+- 设置 Road Prefab Rotation 为 90/180/270
+```
+
+---
+
+## 🐛 常见问题解决
+
+### Q: 天空盒不显示？
+
+**解决方案A - 检查摄像机**:
+```
+1. 选中 Main Camera
+2. Inspector 中找到 Camera 组件
+3. Clear Flags 设置为 "Skybox"
+```
+
+**解决方案B - 手动设置**:
+```
+1. Window > Rendering > Lighting
+2. Environment > Skybox Material
+3. 手动拖入天空盒材质
+4. 点击 "Generate Lighting" 按钮
+```
+
+---
+
+### Q: 道路不显示或位置错误？
+
+**解决方案**:
+```
+1. 检查 RoadManager 是否有 roadSegmentPrefab
+2. 按播放键后查看 Console 日志
+3. 调整 Segment Length 参数
+4. 尝试勾选 Rotate Road Prefab
+```
+
+---
+
+### Q: 道路方向不对？
+
+**解决方案**:
+```
+在 RoadManager 中:
+1. 勾选 "Rotate Road Prefab"
+2. 尝试不同角度:
+   - 90 度
+   - 180 度
+   - 270 度
+```
+
+---
+
+## ✅ 验证清单
+
+配置完成后检查：
+
+- [ ] Scene 窗口显示天空盒效果
+- [ ] RoadManager 组件有道路预制体引用
+- [ ] Segment Length 和 Road Width 已设置
+- [ ] 播放后可以看到道路模型
+- [ ] 星星消失时道路延伸
+
+---
+
+## 🎉 完成！
+
+如果以上步骤都正确，您应该看到：
+- ✨ 漂亮的天空背景
+- 🛣️ 真实的道路模型
+- 🌟 完整的动画效果
+
+**祝您使用愉快！**

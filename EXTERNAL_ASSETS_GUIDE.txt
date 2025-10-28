@@ -1,0 +1,239 @@
+# 外部资源包配置指南
+
+## 📦 已导入的资源包
+
+✅ **Fantasy Skybox** - 天空盒资源包
+✅ **KajamansRoads** - 道路资源包
+
+---
+
+## 🚀 快速配置（推荐）
+
+### 方法1：使用自动配置工具 ⭐
+
+1. **打开配置工具**
+   ```
+   菜单: Tools > Star Falling Animation > Configure Assets
+   ```
+
+2. **点击自动搜索**
+   ```
+   点击 "🔍 自动搜索所有资源" 按钮
+   工具会自动查找并加载资源
+   ```
+
+3. **应用配置**
+   ```
+   点击 "✅ 应用所有配置" 按钮
+   完成！
+   ```
+
+---
+
+## 🎨 手动配置（详细步骤）
+
+### 配置天空盒（Fantasy Skybox）
+
+#### 方法A：使用配置工具
+1. 打开 `Tools > Star Falling Animation > Configure Assets`
+2. 在 "Fantasy Skybox 天空盒" 部分
+3. 拖入天空盒材质到 "天空盒材质" 字段
+4. 点击 "✅ 应用到场景"
+
+#### 方法B：手动设置
+1. 在 Hierarchy 中找到或创建 `EnvironmentSettings` 对象
+2. 添加 `EnvironmentSettings` 组件（如果没有）
+3. 在 Inspector 中：
+   - 将 Fantasy Skybox 材质拖入 `Skybox Material` 字段
+   - 取消勾选 `Use Procedural Sky`
+4. 保存场景
+
+#### 方法C：直接设置场景天空盒
+1. 打开 `Window > Rendering > Lighting`
+2. 在 Environment 标签下
+3. 将 Fantasy Skybox 材质拖入 `Skybox Material` 字段
+
+---
+
+### 配置道路（KajamansRoads）
+
+#### 方法A：使用配置工具
+1. 打开 `Tools > Star Falling Animation > Configure Assets`
+2. 在 "KajamansRoads 道路" 部分
+3. 拖入道路预制体到 "道路预制体" 字段
+4. 点击 "✅ 应用到 RoadManager"
+
+#### 方法B：手动设置
+1. 在 Hierarchy 中找到 `RoadManager` 对象
+2. 在 Inspector 的 `RoadManager` 组件中
+3. 将 KajamansRoads 的道路预制体拖入 `Road Segment Prefab` 字段
+4. 如果道路方向不对，可以调整：
+   - 勾选 `Rotate Road Prefab`
+   - 设置 `Road Prefab Rotation` (通常是 0, 90, 180, 或 270)
+
+---
+
+## 🔍 查找资源
+
+### 查找 Fantasy Skybox 材质
+```
+1. 在 Project 窗口中搜索 "Fantasy" 或 "Sky"
+2. 查找类型为 Material 的资源
+3. 材质的 Shader 应该是 Skybox 类型
+```
+
+### 查找 KajamansRoads 预制体
+```
+1. 在 Project 窗口中搜索 "Road" 或 "Street"
+2. 查找类型为 Prefab (蓝色立方体图标)
+3. 预览预制体确认是道路模型
+```
+
+---
+
+## ⚙️ 参数调整
+
+### 天空盒效果调整
+
+如果天空盒已应用但效果不理想：
+
+1. **调整环境光强度**
+   ```
+   EnvironmentSettings 组件:
+   - Ambient Intensity: 0.8 - 1.2
+   ```
+
+2. **调整方向光**
+   ```
+   Directional Light:
+   - Intensity: 1.0 - 2.0
+   - Color: 根据天空盒调整（温暖/冷色调）
+   ```
+
+3. **更新环境反射**
+   ```
+   Window > Rendering > Lighting
+   点击 "Generate Lighting" 按钮
+   ```
+
+### 道路模型调整
+
+如果道路预制体显示不正常：
+
+1. **调整道路段长度**
+   ```
+   RoadManager 组件:
+   - Segment Length: 根据预制体实际大小调整
+   ```
+
+2. **调整道路宽度**
+   ```
+   RoadManager 组件:
+   - Road Width: 根据预制体实际宽度调整
+   ```
+
+3. **旋转道路**
+   ```
+   RoadManager 组件:
+   - Rotate Road Prefab: ✓
+   - Road Prefab Rotation: 0/90/180/270
+   ```
+
+4. **调整初始道路数量**
+   ```
+   RoadManager 组件:
+   - Initial Road Segments: 3-5
+   ```
+
+---
+
+## ✅ 验证配置
+
+### 检查天空盒
+```
+1. 进入 Play 模式
+2. 查看 Game 窗口
+3. 应该看到 Fantasy Skybox 的天空效果
+```
+
+### 检查道路
+```
+1. 进入 Play 模式
+2. 查看 Scene 窗口
+3. 应该看到 KajamansRoads 的道路模型
+4. 星星消失时道路应该延伸
+```
+
+---
+
+## 🐛 常见问题
+
+### Q: 天空盒不显示？
+```
+A: 检查以下项：
+   1. Camera 的 Clear Flags 设置为 "Skybox"
+   2. RenderSettings.skybox 已正确设置
+   3. Window > Rendering > Lighting 中已应用天空盒
+```
+
+### Q: 道路预制体太大/太小？
+```
+A: 调整 RoadManager 的参数：
+   - Segment Length: 改为预制体实际长度
+   - 或在预制体上调整 Transform.Scale
+```
+
+### Q: 道路方向不对？
+```
+A: 在 RoadManager 中：
+   1. 勾选 Rotate Road Prefab
+   2. 尝试设置 Road Prefab Rotation 为 90/180/270
+```
+
+### Q: 道路延伸位置不对？
+```
+A: 可能需要调整：
+   - Initial Road Segments 数量
+   - Segment Length 长度
+   - 预制体的 Pivot Point（在模型软件中调整）
+```
+
+---
+
+## 🎬 完成后测试
+
+1. **重新运行场景设置**
+   ```
+   Tools > Star Falling Animation > Scene Setup
+   点击 "一键创建场景"
+   ```
+
+2. **播放测试**
+   ```
+   按 Play 按钮 ▶
+   观察：
+   - 天空盒效果
+   - 道路模型
+   - 道路延伸动画
+   ```
+
+3. **调试日志**
+   ```
+   查看 Console 窗口
+   确认日志显示：
+   - "使用自定义天空盒: [材质名]"
+   - "使用自定义道路预制体: [预制体名]"
+   ```
+
+---
+
+## 💡 提示
+
+- 配置工具会自动搜索资源，但可能需要手动确认
+- 如果自动搜索失败，请手动拖入资源
+- 保存场景以保留配置
+- 可以随时切换回程序化生成（移除预制体引用）
+
+---
+
+**配置完成后，您的动画将使用真实的天空和道路资源！** ✨
