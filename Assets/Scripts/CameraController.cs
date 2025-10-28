@@ -12,10 +12,10 @@ public class CameraController : MonoBehaviour
 
     [Header("固定角度设置")]
     [Tooltip("摄像机位置")]
-    [SerializeField] private Vector3 cameraPosition = new Vector3(0, 12, -8);
+    [SerializeField] private Vector3 cameraPosition = new Vector3(0, 8, -12);
     
     [Tooltip("摄像机旋转角度")]
-    [SerializeField] private Vector3 cameraRotation = new Vector3(45, 0, 0);
+    [SerializeField] private Vector3 cameraRotation = new Vector3(25, -5, 0);
 
     [Header("跟随道路设置")]
     [Tooltip("是否跟随道路延伸")]
@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
 
     [Header("后处理效果")]
     [Tooltip("视野范围（FOV）- 更大的值可以看到更多天空")]
-    [SerializeField] private float fieldOfView = 70f;
+    [SerializeField] private float fieldOfView = 60f;
 
     private Camera cam;
     private Vector3 targetPosition;
@@ -49,6 +49,9 @@ public class CameraController : MonoBehaviour
         
         // 初始化摄像机设置
         InitializeCamera();
+        
+        // 立即应用正确的设置，确保从一开始就是正确的
+        ForceApplyCameraSettings();
     }
 
     void Start()
@@ -59,8 +62,27 @@ public class CameraController : MonoBehaviour
             roadManager = FindObjectOfType<RoadManager>();
         }
 
-        // 设置初始位置
-        ApplyCameraSettings();
+        // 再次确保摄像机设置正确（以防场景中有旧设置）
+        ForceApplyCameraSettings();
+    }
+    
+    /// <summary>
+    /// 强制应用摄像机设置（确保覆盖场景中的旧设置）
+    /// </summary>
+    private void ForceApplyCameraSettings()
+    {
+        // 强制设置位置和旋转
+        transform.position = cameraPosition;
+        transform.eulerAngles = cameraRotation;
+        
+        // 强制设置FOV和Clear Flags
+        if (cam != null)
+        {
+            cam.fieldOfView = fieldOfView;
+            cam.clearFlags = CameraClearFlags.Skybox;
+        }
+        
+        Debug.Log($"[CameraController] ✅ 摄像机自动修复完成: 位置={cameraPosition}, 旋转={cameraRotation}, FOV={fieldOfView}");
     }
 
     void LateUpdate()
@@ -79,6 +101,11 @@ public class CameraController : MonoBehaviour
         if (cam != null)
         {
             cam.fieldOfView = fieldOfView;
+            
+            // 确保使用天空盒
+            cam.clearFlags = CameraClearFlags.Skybox;
+            
+            Debug.Log($"[CameraController] 摄像机初始化: FOV={fieldOfView}, ClearFlags={cam.clearFlags}");
         }
     }
 

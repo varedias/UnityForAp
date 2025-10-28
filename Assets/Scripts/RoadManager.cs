@@ -12,20 +12,20 @@ public class RoadManager : MonoBehaviour
     [SerializeField] private GameObject roadSegmentPrefab;
     
     [Tooltip("如果使用 KajamansRoads 资源包，是否需要旋转模型")]
-    [SerializeField] private bool rotateRoadPrefab = false;
+    [SerializeField] private bool rotateRoadPrefab = true;
     
     [Tooltip("道路预制体的旋转角度（Y轴）")]
-    [SerializeField] private float roadPrefabRotation = 0f;
+    [SerializeField] private float roadPrefabRotation = 90f;
 
     [Header("道路配置")]
     [Tooltip("初始道路段数量")]
     [SerializeField] private int initialRoadSegments = 3;
     
-    [Tooltip("每段道路的长度（Z轴）")]
-    [SerializeField] private float segmentLength = 10f;
+    [Tooltip("每段道路的长度（Z轴）- 必须与预制体实际长度匹配！")]
+    [SerializeField] private float segmentLength = 20f;
     
     [Tooltip("道路宽度（X轴）")]
-    [SerializeField] private float roadWidth = 8f;
+    [SerializeField] private float roadWidth = 10f;
 
     [Header("延伸参数")]
     [Tooltip("是否启用道路延伸（取消勾选=只显示初始道路，不延伸）")]
@@ -57,6 +57,12 @@ public class RoadManager : MonoBehaviour
     {
         Debug.Log("[RoadManager] 初始化道路系统");
 
+        // 自动检测预制体尺寸
+        if (roadSegmentPrefab != null)
+        {
+            AutoDetectPrefabSize();
+        }
+
         // 清空现有道路
         ClearAllRoads();
 
@@ -69,6 +75,54 @@ public class RoadManager : MonoBehaviour
         }
 
         Debug.Log($"[RoadManager] 已生成 {initialRoadSegments} 段初始道路");
+        
+        // 如果使用外部预制体，添加自动修复组件
+        if (roadSegmentPrefab != null)
+        {
+            RuntimeMaterialFixer fixer = gameObject.GetComponent<RuntimeMaterialFixer>();
+            if (fixer == null)
+            {
+                fixer = gameObject.AddComponent<RuntimeMaterialFixer>();
+                Debug.Log("[RoadManager] 已添加运行时材质自动修复器");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 自动检测预制体尺寸
+    /// </summary>
+    private void AutoDetectPrefabSize()
+    {
+        // 获取预制体的渲染器边界
+        Renderer[] renderers = roadSegmentPrefab.GetComponentsInChildren<Renderer>();
+        
+        if (renderers.Length > 0)
+        {
+            Bounds combinedBounds = renderers[0].bounds;
+            
+            foreach (Renderer r in renderers)
+            {
+                combinedBounds.Encapsulate(r.bounds);
+            }
+            
+            // 获取尺寸（考虑旋转）
+            Vector3 size = combinedBounds.size;
+            float detectedLength = rotateRoadPrefab ? size.x : size.z;
+            float detectedWidth = rotateRoadPrefab ? size.z : size.x;
+            
+            // 只在差异较大时更新
+            if (Mathf.Abs(detectedLength - segmentLength) > 1f)
+            {
+                Debug.Log($"[RoadManager] 自动检测到道路长度: {detectedLength:F1} (当前设置: {segmentLength})");
+                segmentLength = detectedLength;
+            }
+            
+            if (Mathf.Abs(detectedWidth - roadWidth) > 1f)
+            {
+                Debug.Log($"[RoadManager] 自动检测到道路宽度: {detectedWidth:F1} (当前设置: {roadWidth})");
+                roadWidth = detectedWidth;
+            }
+        }
     }
 
     /// <summary>
