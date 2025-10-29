@@ -66,6 +66,9 @@ public class SceneSetupTool : EditorWindow
     {
         Debug.Log("========== 开始设置场景 ==========");
 
+        // 0. 立即设置天空盒（最优先）
+        SetupDefaultSkybox();
+
         // 1. 创建主控制器
         GameObject masterController = CreateMasterController();
 
@@ -95,9 +98,34 @@ public class SceneSetupTool : EditorWindow
 
         // 6. 创建星星生成器
         CreateStarSpawner(masterController);
+        
+        // 7. 保存场景设置
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+            UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene()
+        );
 
         Debug.Log("========== 场景设置完成 ==========");
-        EditorUtility.DisplayDialog("完成", "场景已成功设置！\n按下播放按钮即可预览动画。", "确定");
+        EditorUtility.DisplayDialog("完成", "场景已成功设置！\n\n✅ 天空盒: FS003_Day_Sunless\n✅ 摄像机角度: (5, 3, 0)\n\n按下播放按钮即可预览动画。\n记得保存场景 (Ctrl+S)", "确定");
+    }
+    
+    /// <summary>
+    /// 设置默认天空盒（立即执行）
+    /// </summary>
+    private void SetupDefaultSkybox()
+    {
+        string skyboxPath = "Assets/Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat";
+        Material skyboxMat = AssetDatabase.LoadAssetAtPath<Material>(skyboxPath);
+        
+        if (skyboxMat != null)
+        {
+            RenderSettings.skybox = skyboxMat;
+            DynamicGI.UpdateEnvironment();
+            Debug.Log($"[SceneSetup] ✅ 已设置天空盒: {skyboxMat.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"[SceneSetup] ⚠️ 未找到天空盒: {skyboxPath}");
+        }
     }
 
     /// <summary>
@@ -168,10 +196,9 @@ public class SceneSetupTool : EditorWindow
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox;
         RenderSettings.ambientIntensity = 0.8f;
         
-        // 尝试自动加载 Fantasy Skybox 材质
-        AutoLoadFantasySkybox();
-
-        Debug.Log("[SceneSetup] 已设置灯光和天空盒");
+        // 天空盒已在 SetupScene 开始时设置
+        
+        Debug.Log("[SceneSetup] 已创建灯光系统");
     }
     
     /// <summary>
@@ -179,45 +206,39 @@ public class SceneSetupTool : EditorWindow
     /// </summary>
     private void AutoLoadFantasySkybox()
     {
-        // 直接尝试加载 Fantasy Skybox FREE 中的材质
-        string[] specificPaths = {
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.mat",
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.mat",
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.mat"
-        };
+        // 使用 FS003_Day_Sunless 全景天空盒
+        string skyboxPath = "Assets/Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat";
+        Material skyboxMat = AssetDatabase.LoadAssetAtPath<Material>(skyboxPath);
         
-        foreach (string path in specificPaths)
+        if (skyboxMat != null)
         {
-            Material skyboxMat = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (skyboxMat != null)
-            {
-                RenderSettings.skybox = skyboxMat;
-                DynamicGI.UpdateEnvironment();
-                Debug.Log($"[SceneSetup] 已自动加载天空盒: {skyboxMat.name}");
-                return;
-            }
+            RenderSettings.skybox = skyboxMat;
+            DynamicGI.UpdateEnvironment();
+            Debug.Log($"[SceneSetup] ✅ 已自动加载天空盒: {skyboxMat.name}");
+            return;
         }
         
-        // 如果直接路径失败，尝试搜索
-        string[] guids = AssetDatabase.FindAssets("t:Material FS000", new[] { "Assets/Fantasy Skybox FREE" });
+        // 如果路径失败，尝试搜索 FS003_Day_Sunless
+        string[] guids = AssetDatabase.FindAssets("FS003_Day_Sunless t:Material", new[] { "Assets/Fantasy Skybox FREE" });
         
         if (guids.Length > 0)
         {
             string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-            Material skyboxMat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            skyboxMat = AssetDatabase.LoadAssetAtPath<Material>(path);
             
             if (skyboxMat != null)
             {
                 RenderSettings.skybox = skyboxMat;
                 DynamicGI.UpdateEnvironment();
-                Debug.Log($"[SceneSetup] 已自动加载天空盒: {skyboxMat.name}");
+                Debug.Log($"[SceneSetup] ✅ 已搜索并加载天空盒: {skyboxMat.name}");
                 return;
             }
         }
         
-        Debug.LogWarning("[SceneSetup] 未找到 Fantasy Skybox 材质\n" +
-                        "请手动设置: Window > Rendering > Lighting > Skybox Material\n" +
-                        "或使用: Tools > Star Falling Animation > Configure Assets");
+        Debug.LogError("[SceneSetup] ❌ 未找到 FS003_Day_Sunless 天空盒材质！\n" +
+                      "路径: Assets/Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat\n" +
+                      "请确保已导入 Fantasy Skybox FREE 资源包\n" +
+                      "或手动设置: Window > Rendering > Lighting > Skybox Material");
     }
 
     /// <summary>

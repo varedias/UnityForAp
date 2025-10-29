@@ -44,7 +44,7 @@ public class QuickFixCamera : EditorWindow
 
         // 设置位置和旋转
         mainCamera.transform.position = new Vector3(0, 8, -12);
-        mainCamera.transform.eulerAngles = new Vector3(-1, 3, 0);
+        mainCamera.transform.eulerAngles = new Vector3(5, 3, 0);
         
         // 设置FOV
         mainCamera.fieldOfView = 60f;
@@ -67,7 +67,7 @@ public class QuickFixCamera : EditorWindow
             "修复完成",
             "摄像机视角已修复！\n\n" +
             "位置: (0, 8, -12)\n" +
-            "旋转: (-1, 3, 0)\n" +
+            "旋转: (5, 3, 0)\n" +
             "FOV: 60\n\n" +
             "请保存场景并测试。",
             "确定"

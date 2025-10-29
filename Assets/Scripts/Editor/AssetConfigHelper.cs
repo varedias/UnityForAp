@@ -181,42 +181,36 @@ public class AssetConfigHelper : EditorWindow
     /// </summary>
     private void SearchForSkybox()
     {
-        // 优先搜索 Fantasy Skybox FREE 文件夹
-        string[] specificPaths = {
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_01.mat",
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_02.mat",
-            "Assets/Fantasy Skybox FREE/Cubemaps/Classic/FS000_Day_03.mat"
-        };
+        // 优先使用 FS003_Day_Sunless 全景天空盒
+        string primaryPath = "Assets/Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat";
+        Material mat = AssetDatabase.LoadAssetAtPath<Material>(primaryPath);
         
-        // 先尝试直接加载常见的天空盒
-        foreach (string path in specificPaths)
+        if (mat != null)
         {
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (mat != null)
-            {
-                fantasySkybox = mat;
-                Debug.Log($"[AssetConfig] 找到天空盒: {mat.name} at {path}");
-                return;
-            }
+            fantasySkybox = mat;
+            Debug.Log($"[AssetConfig] ✅ 找到天空盒: {mat.name} at {primaryPath}");
+            return;
         }
         
-        // 如果直接路径失败，搜索整个项目
-        string[] guids = AssetDatabase.FindAssets("t:Material FS000", new[] { "Assets/Fantasy Skybox FREE" });
+        // 如果直接路径失败，搜索 FS003_Day_Sunless
+        string[] guids = AssetDatabase.FindAssets("FS003_Day_Sunless t:Material", new[] { "Assets/Fantasy Skybox FREE" });
         
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            mat = AssetDatabase.LoadAssetAtPath<Material>(path);
             
-            if (mat != null && (mat.shader.name.Contains("Skybox") || path.Contains("Fantasy")))
+            if (mat != null)
             {
                 fantasySkybox = mat;
-                Debug.Log($"[AssetConfig] 找到天空盒: {mat.name} at {path}");
+                Debug.Log($"[AssetConfig] ✅ 找到天空盒: {mat.name} at {path}");
                 return;
             }
         }
         
-        Debug.LogWarning("[AssetConfig] 未找到天空盒材质，请从 Assets/Fantasy Skybox FREE/Cubemaps/Classic 文件夹手动拖入");
+        Debug.LogError("[AssetConfig] ❌ 未找到 FS003_Day_Sunless 天空盒材质\n" +
+                      "路径: Assets/Fantasy Skybox FREE/Panoramics/FS003/FS003_Day_Sunless.mat\n" +
+                      "请确保已导入 Fantasy Skybox FREE 资源包");
     }
 
     /// <summary>
