@@ -4,6 +4,7 @@ using UnityEngine;
 /// 摄像机控制器 - 固定拍摄地面
 /// </summary>
 [RequireComponent(typeof(Camera))]
+[DefaultExecutionOrder(-100)] // 确保在其他脚本之前执行
 public class CameraController : MonoBehaviour
 {
     [Header("摄像机模式")]
@@ -15,7 +16,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector3 cameraPosition = new Vector3(0, 8, -12);
     
     [Tooltip("摄像机旋转角度")]
-    [SerializeField] private Vector3 cameraRotation = new Vector3(25, -5, 0);
+    [SerializeField] private Vector3 cameraRotation = new Vector3(-1, 3, 0);
+    
+    [Header("强制设置")]
+    [Tooltip("忽略场景中保存的值，强制使用代码中的默认值")]
+    [SerializeField] private bool forceUseDefaultValues = true;
 
     [Header("跟随道路设置")]
     [Tooltip("是否跟随道路延伸")]
@@ -36,6 +41,8 @@ public class CameraController : MonoBehaviour
 
     private Camera cam;
     private Vector3 targetPosition;
+    
+    private bool hasAppliedSettings = false; // 防止重复应用
 
     public enum CameraMode
     {
@@ -47,11 +54,20 @@ public class CameraController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         
+        // 如果启用强制使用默认值，重置为代码中的默认值
+        if (forceUseDefaultValues)
+        {
+            cameraPosition = new Vector3(0, 8, -12);
+            cameraRotation = new Vector3(-1, 3, 0);
+            fieldOfView = 60f;
+        }
+        
+        // 最优先：立即强制应用正确的设置
+        Debug.Log($"[CameraController] Awake - 应用设置: 位置={cameraPosition}, 旋转={cameraRotation}");
+        ForceApplyCameraSettings();
+        
         // 初始化摄像机设置
         InitializeCamera();
-        
-        // 立即应用正确的设置，确保从一开始就是正确的
-        ForceApplyCameraSettings();
     }
 
     void Start()
@@ -62,8 +78,12 @@ public class CameraController : MonoBehaviour
             roadManager = FindObjectOfType<RoadManager>();
         }
 
-        // 再次确保摄像机设置正确（以防场景中有旧设置）
-        ForceApplyCameraSettings();
+        // 再次确保摄像机设置正确（以防其他脚本修改了）
+        if (!hasAppliedSettings)
+        {
+            Debug.Log($"[CameraController] Start - 再次检查Transform: 位置={transform.position}, 旋转={transform.eulerAngles}");
+            ForceApplyCameraSettings();
+        }
     }
     
     /// <summary>
@@ -82,12 +102,31 @@ public class CameraController : MonoBehaviour
             cam.clearFlags = CameraClearFlags.Skybox;
         }
         
-        Debug.Log($"[CameraController] ✅ 摄像机自动修复完成: 位置={cameraPosition}, 旋转={cameraRotation}, FOV={fieldOfView}");
+        hasAppliedSettings = true;
+        
+        Debug.Log($"[CameraController] ✅ 摄像机强制设置完成: 位置={transform.position}, 旋转={transform.eulerAngles}, FOV={fieldOfView}");
     }
 
     void LateUpdate()
     {
-        if (cameraMode == CameraMode.FollowRoad && followRoad)
+        // 如果是固定角度模式，持续检查并锁定摄像机角度
+        if (cameraMode == CameraMode.FixedAngle)
+        {
+            // 检测是否有其他代码修改了摄像机角度
+            if (Vector3.Distance(transform.eulerAngles, cameraRotation) > 0.1f)
+            {
+                Debug.LogWarning($"[CameraController] 检测到摄像机角度被修改! 从 {transform.eulerAngles} 恢复到 {cameraRotation}");
+                transform.eulerAngles = cameraRotation;
+            }
+            
+            // 检测位置是否被修改
+            if (Vector3.Distance(transform.position, cameraPosition) > 0.1f)
+            {
+                Debug.LogWarning($"[CameraController] 检测到摄像机位置被修改! 从 {transform.position} 恢复到 {cameraPosition}");
+                transform.position = cameraPosition;
+            }
+        }
+        else if (cameraMode == CameraMode.FollowRoad && followRoad)
         {
             UpdateFollowRoad();
         }
