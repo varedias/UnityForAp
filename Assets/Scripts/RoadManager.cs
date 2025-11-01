@@ -66,15 +66,10 @@ public class RoadManager : MonoBehaviour
         // 清空现有道路
         ClearAllRoads();
 
-        // 生成初始道路
+        // 生成初始道路 - 使用渐变出现
         nextSegmentPosition = transform.position;
         
-        for (int i = 0; i < initialRoadSegments; i++)
-        {
-            CreateRoadSegment(nextSegmentPosition, true);
-        }
-
-        Debug.Log($"[RoadManager] 已生成 {initialRoadSegments} 段初始道路");
+        StartCoroutine(FadeInInitialRoads());
         
         // 如果使用外部预制体，添加自动修复组件
         if (roadSegmentPrefab != null)
@@ -86,6 +81,59 @@ public class RoadManager : MonoBehaviour
                 Debug.Log("[RoadManager] 已添加运行时材质自动修复器");
             }
         }
+    }
+    
+    /// <summary>
+    /// 渐变出现初始道路
+    /// </summary>
+    private IEnumerator FadeInInitialRoads()
+    {
+        for (int i = 0; i < initialRoadSegments; i++)
+        {
+            // 创建道路段
+            GameObject segment = CreateRoadSegment(nextSegmentPosition, false);
+            
+            // 渐变出现动画
+            yield return StartCoroutine(FadeInRoadSegment(segment));
+            
+            // 更新下一段位置
+            nextSegmentPosition += new Vector3(0, 0, segmentLength);
+        }
+        
+        Debug.Log($"[RoadManager] 已生成 {initialRoadSegments} 段初始道路（渐变出现）");
+    }
+    
+    /// <summary>
+    /// 单个道路段的渐变出现动画（使用缩放）
+    /// </summary>
+    private IEnumerator FadeInRoadSegment(GameObject segment)
+    {
+        // 保存原始缩放
+        Vector3 originalScale = segment.transform.localScale;
+        
+        // 设置初始缩放为0
+        segment.transform.localScale = Vector3.zero;
+        
+        // 渐变动画
+        float duration = 3f; // 渐变持续时间（3秒）
+        float elapsed = 0f;
+        
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsed / duration);
+            
+            // 使用平滑曲线
+            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
+            
+            // 更新缩放
+            segment.transform.localScale = originalScale * smoothProgress;
+            
+            yield return null;
+        }
+        
+        // 确保最终缩放正确
+        segment.transform.localScale = originalScale;
     }
     
     /// <summary>
