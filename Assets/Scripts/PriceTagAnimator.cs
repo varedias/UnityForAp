@@ -16,7 +16,7 @@ public class PriceTagAnimator : MonoBehaviour
 
     [Header("价格配置")]
     [Tooltip("显示的价格文本")]
-    [SerializeField] private string priceString = "¥99";
+    [SerializeField] private string priceString = "该商品税款为¥99";
 
     [Header("动画参数")]
     [Tooltip("初始位置偏移（相对于屏幕中央，Y轴负值表示偏下）")]
@@ -199,6 +199,23 @@ public class PriceTagAnimator : MonoBehaviour
     public float GetTotalDuration()
     {
         return 0.5f + displayDuration + fadeOutDuration; // 淡入 + 停留 + 淡出
+    }
+    
+    /// <summary>
+    /// 获取价格金额（提取数字部分）
+    /// </summary>
+    public float GetPriceAmount()
+    {
+        // 使用正则表达式提取第一个数字（支持整数和小数）
+        System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(priceString, @"[¥$]?\s*(\d+\.?\d*)");
+        
+        if (match.Success && float.TryParse(match.Groups[1].Value, out float amount))
+        {
+            return amount;
+        }
+        
+        Debug.LogWarning($"[PriceTagAnimator] 无法从 '{priceString}' 中提取数字，返回默认值0");
+        return 0f;
     }
 
     /// <summary>

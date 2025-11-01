@@ -11,6 +11,7 @@ public class MasterController : MonoBehaviour
     [SerializeField] private PriceTagAnimator priceTagAnimator;
     [SerializeField] private StarSpawner starSpawner;
     [SerializeField] private RoadManager roadManager;
+    [SerializeField] private RoadTaxTextAnimator roadTaxTextAnimator;
 
     [Header("动画配置")]
     [Tooltip("是否在启动时自动播放动画")]
@@ -32,6 +33,9 @@ public class MasterController : MonoBehaviour
         
         if (roadManager == null)
             roadManager = FindObjectOfType<RoadManager>();
+        
+        if (roadTaxTextAnimator == null)
+            roadTaxTextAnimator = FindObjectOfType<RoadTaxTextAnimator>();
 
         // 验证所有组件
         if (!ValidateComponents())
@@ -113,16 +117,29 @@ public class MasterController : MonoBehaviour
         Debug.Log($"[MasterController] 等待价签动画完成 ({priceTagDuration} 秒)...");
         yield return new WaitForSeconds(priceTagDuration);
 
-        // 4. 启动星星生成器
-        Debug.Log("[MasterController] 步骤 2: 启动星星生成器");
-        starSpawner.StartSpawning();
+        // 4. 跳过星星生成器（已移除星星掉落动画）
+        // Debug.Log("[MasterController] 步骤 2: 启动星星生成器");
+        // starSpawner.StartSpawning();
 
         // 5. 初始化道路管理器
-        Debug.Log("[MasterController] 步骤 3: 初始化道路系统");
+        Debug.Log("[MasterController] 步骤 2: 初始化道路系统");
         roadManager.Initialize();
+        
+        // 6. 等待道路渐变完成并稳定（5秒渐变时间）
+        float roadFadeInDuration = 5f;
+        Debug.Log($"[MasterController] 等待道路渐变完成 ({roadFadeInDuration} 秒)...");
+        yield return new WaitForSeconds(roadFadeInDuration);
+        
+        // 7. 显示税款文字
+        if (roadTaxTextAnimator != null)
+        {
+            Debug.Log("[MasterController] 步骤 3: 显示税款文字");
+            // 获取价签的金额
+            float taxAmount = priceTagAnimator.GetPriceAmount();
+            roadTaxTextAnimator.ShowTaxText(taxAmount);
+        }
 
         Debug.Log("[MasterController] ========== 动画流程启动完成 ==========");
-        Debug.Log("[MasterController] 星星将持续生成，道路将根据星星消失而延伸...");
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ using TMPro;
 /// </summary>
 public class SceneSetupTool : EditorWindow
 {
-    private string priceText = "¥99";
+    private string priceText = "该商品税款为¥99";
     private bool createCamera = true;
     private bool createLighting = true;
     private bool createRoad = true;
