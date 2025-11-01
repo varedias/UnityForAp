@@ -115,7 +115,7 @@ public class RoadManager : MonoBehaviour
         segment.transform.localScale = Vector3.zero;
         
         // 渐变动画
-        float duration = 5f; // 渐变持续时间（5秒）
+        float duration = 3f; // 渐变持续时间（3秒）
         float elapsed = 0f;
         
         while (elapsed < duration)

@@ -125,8 +125,8 @@ public class MasterController : MonoBehaviour
         Debug.Log("[MasterController] 步骤 2: 初始化道路系统");
         roadManager.Initialize();
         
-        // 6. 等待道路渐变完成并稳定（5秒渐变时间）
-        float roadFadeInDuration = 5f;
+        // 6. 等待道路渐变完成并稳定（3秒渐变时间）
+        float roadFadeInDuration = 3f;
         Debug.Log($"[MasterController] 等待道路渐变完成 ({roadFadeInDuration} 秒)...");
         yield return new WaitForSeconds(roadFadeInDuration);
         
