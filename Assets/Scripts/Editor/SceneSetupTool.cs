@@ -168,7 +168,7 @@ public class SceneSetupTool : EditorWindow
         }
 
         // CameraController 会在 Awake 时自动设置正确的位置和旋转
-        // 位置: (0, 8, -12), 旋转: (3, 0, 0), FOV: 60
+        // 位置: (0, 3, 0), 旋转: (10, -15, 0), FOV: 60
         // 无需手动设置,脚本会自动处理
 
         Debug.Log("[SceneSetup] 已设置摄像机 (将在运行时自动修复位置和角度)");

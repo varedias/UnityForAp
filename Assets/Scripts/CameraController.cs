@@ -13,10 +13,10 @@ public class CameraController : MonoBehaviour
 
     [Header("固定角度设置")]
     [Tooltip("摄像机位置")]
-    [SerializeField] private Vector3 cameraPosition = new Vector3(0, 8, -12);
+    [SerializeField] private Vector3 cameraPosition = new Vector3(0, 3, 0);
     
     [Tooltip("摄像机旋转角度")]
-    [SerializeField] private Vector3 cameraRotation = new Vector3(5, 3, 0);
+    [SerializeField] private Vector3 cameraRotation = new Vector3(10, -15, 0);
     
     [Header("强制设置")]
     [Tooltip("忽略场景中保存的值，强制使用代码中的默认值")]
@@ -57,8 +57,8 @@ public class CameraController : MonoBehaviour
         // 如果启用强制使用默认值，重置为代码中的默认值
         if (forceUseDefaultValues)
         {
-            cameraPosition = new Vector3(0, 8, -12);
-            cameraRotation = new Vector3(5, 3, 0);
+            cameraPosition = new Vector3(0, 3, 0);
+            cameraRotation = new Vector3(10, -15, 0);
             fieldOfView = 60f;
         }
         

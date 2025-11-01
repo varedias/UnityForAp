@@ -19,7 +19,7 @@ public class RoadManager : MonoBehaviour
 
     [Header("道路配置")]
     [Tooltip("初始道路段数量")]
-    [SerializeField] private int initialRoadSegments = 3;
+    [SerializeField] private int initialRoadSegments = 1;
     
     [Tooltip("每段道路的长度（Z轴）- 必须与预制体实际长度匹配！")]
     [SerializeField] private float segmentLength = 20f;
