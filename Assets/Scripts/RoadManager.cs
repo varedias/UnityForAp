@@ -67,9 +67,33 @@ public class RoadManager : MonoBehaviour
         ClearAllRoads();
 
         // 生成初始道路 - 使用渐变出现
+        // WebGL 中使用更近的起始位置
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        nextSegmentPosition = new Vector3(0, 0, 0); // 从原点开始
+        #else
         nextSegmentPosition = transform.position;
+        #endif
         
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        // WebGL 中直接生成，不使用渐变动画
+        Debug.Log("[RoadManager] WebGL 模式 - 直接生成道路");
+        Debug.Log($"[RoadManager] 起始位置: {nextSegmentPosition}, 段长度: {segmentLength}");
+        
+        for (int i = 0; i < initialRoadSegments; i++)
+        {
+            Debug.Log($"[RoadManager] 创建道路段 {i+1}/{initialRoadSegments} at {nextSegmentPosition}");
+            GameObject segment = CreateRoadSegment(nextSegmentPosition, false);
+            if (segment != null)
+            {
+                segment.transform.localScale = Vector3.one; // 确保完全显示
+                Debug.Log($"[RoadManager] 道路段已创建: {segment.name} at {segment.transform.position}");
+            }
+            nextSegmentPosition += new Vector3(0, 0, segmentLength);
+        }
+        Debug.Log($"[RoadManager] WebGL 已生成 {initialRoadSegments} 段道路");
+        #else
         StartCoroutine(FadeInInitialRoads());
+        #endif
         
         // 如果使用外部预制体，添加自动修复组件
         if (roadSegmentPrefab != null)
@@ -262,6 +286,11 @@ public class RoadManager : MonoBehaviour
                 Quaternion.identity;
             
             segment = Instantiate(roadSegmentPrefab, position, rotation, transform);
+            
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            // WebGL 中强制修复材质
+            FixSegmentMaterialsForWebGL(segment);
+            #endif
             
             Debug.Log($"[RoadManager] 使用自定义道路预制体: {roadSegmentPrefab.name}");
         }
@@ -481,6 +510,81 @@ public class RoadManager : MonoBehaviour
 
         float halfLength = GetTotalRoadLength() / 2f;
         return transform.position + new Vector3(0, 0, halfLength);
+    }
+
+    /// <summary>
+    /// WebGL 材质修复 - 将 Standard 着色器替换为 URP
+    /// </summary>
+    private void FixSegmentMaterialsForWebGL(GameObject segment)
+    {
+        Renderer[] renderers = segment.GetComponentsInChildren<Renderer>();
+        
+        foreach (Renderer renderer in renderers)
+        {
+            Material[] materials = renderer.materials;
+            bool changed = false;
+            
+            for (int i = 0; i < materials.Length; i++)
+            {
+                Material mat = materials[i];
+                
+                if (mat != null && mat.shader != null)
+                {
+                    string shaderName = mat.shader.name;
+                    
+                    // 如果是 Standard 或不兼容的着色器
+                    if (shaderName.Contains("Standard") || 
+                        shaderName.Contains("Legacy") ||
+                        shaderName.Contains("Mobile/"))
+                    {
+                        // 保存原始贴图和颜色
+                        Texture mainTex = mat.GetTexture("_MainTex");
+                        Color color = mat.HasProperty("_Color") ? mat.GetColor("_Color") : Color.white;
+                        
+                        // 尝试使用 URP Lit
+                        Shader urpShader = Shader.Find("Universal Render Pipeline/Lit");
+                        if (urpShader == null)
+                        {
+                            urpShader = Shader.Find("Universal Render Pipeline/Simple Lit");
+                        }
+                        if (urpShader == null)
+                        {
+                            urpShader = Shader.Find("Unlit/Texture");
+                        }
+                        
+                        if (urpShader != null)
+                        {
+                            Material newMat = new Material(urpShader);
+                            newMat.name = mat.name + "_WebGL";
+                            
+                            // 恢复贴图和颜色
+                            if (mainTex != null)
+                            {
+                                if (newMat.HasProperty("_BaseMap"))
+                                    newMat.SetTexture("_BaseMap", mainTex);
+                                else if (newMat.HasProperty("_MainTex"))
+                                    newMat.SetTexture("_MainTex", mainTex);
+                            }
+                            
+                            if (newMat.HasProperty("_BaseColor"))
+                                newMat.SetColor("_BaseColor", color);
+                            else if (newMat.HasProperty("_Color"))
+                                newMat.SetColor("_Color", color);
+                            
+                            materials[i] = newMat;
+                            changed = true;
+                            
+                            Debug.Log($"[RoadManager] WebGL修复: {shaderName} -> {urpShader.name}");
+                        }
+                    }
+                }
+            }
+            
+            if (changed)
+            {
+                renderer.materials = materials;
+            }
+        }
     }
 
     // 编辑器辅助功能

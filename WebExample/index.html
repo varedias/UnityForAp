@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StarFalling - Unity WebGL Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .unity-container {
+            position: relative;
+            width: 100%;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        #unity-canvas {
+            width: 100%;
+            height: 600px;
+            background: #000;
+            border-radius: 10px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .controls {
+            padding: 30px;
+            background: white;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            padding: 30px;
+            background: #f9f9f9;
+            border-top: 2px solid #eee;
+        }
+
+        .info h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .status {
+            padding: 15px;
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            margin: 20px 30px;
+            border-radius: 5px;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 StarFalling Animation</h1>
+            <p>Unity WebGL 演示 - 星星下落动画系统</p>
+        </div>
+
+        <div class="unity-container">
+            <button class="fullscreen-btn" onclick="unityInstance.SetFullscreen(1)">
+                全屏显示
+            </button>
+            
+            <canvas id="unity-canvas"></canvas>
+            
+            <div class="loading" id="loading">
+                <h2>加载中...</h2>
+                <div class="loading-bar">
+                    <div class="loading-fill" id="loading-fill"></div>
+                </div>
+                <p id="loading-text">正在初始化 Unity...</p>
+            </div>
+        </div>
+
+        <div class="status">
+            <strong>状态：</strong> <span id="status">等待 Unity 加载...</span>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>🎮 动画控制</label>
+                <button onclick="sendToUnity('StartAnimation')">开始动画</button>
+                <button onclick="sendToUnity('PauseAnimation')">暂停</button>
+                <button onclick="sendToUnity('ResumeAnimation')">继续</button>
+                <button onclick="sendToUnity('ResetAnimation')">重置</button>
+            </div>
+
+            <div class="control-group">
+                <label>💰 价格设置</label>
+                <button onclick="updatePrice('¥99')">¥99</button>
+                <button onclick="updatePrice('¥199')">¥199</button>
+                <button onclick="updatePrice('¥299')">¥299</button>
+                <button onclick="updatePrice('$9.99')">$9.99</button>
+            </div>
+
+            <div class="control-group">
+                <label>📊 状态查询</label>
+                <button onclick="sendToUnity('GetStatus')">获取状态</button>
+            </div>
+        </div>
+
+        <div class="info">
+            <h2>使用说明</h2>
+            <ul>
+                <li>等待 Unity 场景加载完成</li>
+                <li>使用上方按钮控制动画播放</li>
+                <li>点击价格按钮可以更新显示的价格</li>
+                <li>支持全屏显示，获得更好的体验</li>
+                <li>确保使用现代浏览器（Chrome、Edge、Firefox）</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        var unityInstance = null;
+        
+        // Unity 加载完成后的回调
+        function onUnityLoaded() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('status').textContent = '✓ Unity 已就绪';
+            console.log('Unity WebGL 加载完成！');
+        }
+
+        // 发送消息到 Unity
+        function sendToUnity(methodName, param = '') {
+            if (unityInstance) {
+                unityInstance.SendMessage('FlutterBridge', methodName, param);
+                console.log(`发送到 Unity: ${methodName}(${param})`);
+                document.getElementById('status').textContent = `已发送: ${methodName}`;
+            } else {
+                alert('Unity 还未加载完成，请稍候...');
+            }
+        }
+
+        // 更新价格
+        function updatePrice(price) {
+            sendToUnity('UpdatePrice', price);
+        }
+
+        // 接收来自 Unity 的消息（需要在 Unity 中调用 Application.ExternalCall）
+        function receiveFromUnity(message) {
+            console.log('来自 Unity 的消息:', message);
+            document.getElementById('status').textContent = `Unity: ${message}`;
+        }
+
+        // 加载 Unity WebGL
+        function loadUnity() {
+            var canvas = document.querySelector("#unity-canvas");
+            var loadingFill = document.getElementById("loading-fill");
+            var loadingText = document.getElementById("loading-text");
+
+            var buildUrl = "Build"; // Unity WebGL 构建输出的 Build 文件夹路径
+            var loaderUrl = buildUrl + "/WebGL.loader.js"; // 替换为您的实际文件名
+            
+            var config = {
+                dataUrl: buildUrl + "/WebGL.data",
+                frameworkUrl: buildUrl + "/WebGL.framework.js",
+                codeUrl: buildUrl + "/WebGL.wasm",
+                streamingAssetsUrl: "StreamingAssets",
+                companyName: "YourCompany",
+                productName: "StarFalling",
+                productVersion: "1.0",
+                // showBanner: unityShowBanner,
+            };
+
+            // 加载进度回调
+            config.progressHandler = function(progress) {
+                var percent = Math.round(progress * 100);
+                loadingFill.style.width = percent + '%';
+                loadingText.textContent = `加载中... ${percent}%`;
+            };
+
+            // 创建 Unity 实例
+            createUnityInstance(canvas, config).then(function(instance) {
+                unityInstance = instance;
+                onUnityLoaded();
+            }).catch(function(message) {
+                alert('Unity 加载失败: ' + message);
+                console.error('Unity 加载错误:', message);
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            // 注意：这里需要先构建 Unity WebGL 项目
+            // 然后将构建输出的文件放在正确的位置
+            // 取消下面这行的注释来启动 Unity
+            // loadUnity();
+            
+            document.getElementById('status').textContent = 
+                '⚠️ 请先在 Unity 中构建 WebGL 项目，然后将 Build 文件夹放在此 HTML 同目录下';
+        });
+    </script>
+</body>
+</html>

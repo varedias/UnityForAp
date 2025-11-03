@@ -15,6 +15,12 @@ public class RuntimeMaterialFixer : MonoBehaviour
 
     void Start()
     {
+        // WebGL 中禁用自动修复，因为着色器可能未包含在构建中
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        Debug.Log("[RuntimeMaterialFixer] WebGL 平台已禁用自动修复");
+        autoFix = false;
+        #endif
+        
         if (autoFix)
         {
             StartCoroutine(AutoFixMaterials());
