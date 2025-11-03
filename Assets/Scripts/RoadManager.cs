@@ -67,33 +67,16 @@ public class RoadManager : MonoBehaviour
         ClearAllRoads();
 
         // 生成初始道路 - 使用渐变出现
-        // WebGL 中使用更近的起始位置
+        // WebGL 中使用更近的起始位置以便摄像机能看到
         #if UNITY_WEBGL && !UNITY_EDITOR
         nextSegmentPosition = new Vector3(0, 0, 0); // 从原点开始
+        Debug.Log("[RoadManager] WebGL 模式 - 使用缩放动画生成道路");
         #else
         nextSegmentPosition = transform.position;
         #endif
         
-        #if UNITY_WEBGL && !UNITY_EDITOR
-        // WebGL 中直接生成，不使用渐变动画
-        Debug.Log("[RoadManager] WebGL 模式 - 直接生成道路");
-        Debug.Log($"[RoadManager] 起始位置: {nextSegmentPosition}, 段长度: {segmentLength}");
-        
-        for (int i = 0; i < initialRoadSegments; i++)
-        {
-            Debug.Log($"[RoadManager] 创建道路段 {i+1}/{initialRoadSegments} at {nextSegmentPosition}");
-            GameObject segment = CreateRoadSegment(nextSegmentPosition, false);
-            if (segment != null)
-            {
-                segment.transform.localScale = Vector3.one; // 确保完全显示
-                Debug.Log($"[RoadManager] 道路段已创建: {segment.name} at {segment.transform.position}");
-            }
-            nextSegmentPosition += new Vector3(0, 0, segmentLength);
-        }
-        Debug.Log($"[RoadManager] WebGL 已生成 {initialRoadSegments} 段道路");
-        #else
+        // 所有平台都使用缩放动画
         StartCoroutine(FadeInInitialRoads());
-        #endif
         
         // 如果使用外部预制体，添加自动修复组件
         if (roadSegmentPrefab != null)
