@@ -330,6 +330,7 @@ MonoBehaviour:
   priceText: {fileID: 392794097}
   canvasGroup: {fileID: 33748643}
   priceString: "\xA599"
+  textColor: {r: 0, g: 0, b: 0, a: 1}
   initialPosition: {x: 0, y: -200}
   displayDuration: 2
   moveUpDistance: 300
@@ -465,6 +466,7 @@ MonoBehaviour:
   starSpawner: {fileID: 29906506}
   roadManager: {fileID: 84220877}
   roadTaxTextAnimator: {fileID: 1092277382}
+  cherryBlossomController: {fileID: 1746442833}
   autoPlayOnStart: 1
   startDelay: 0.5
 --- !u!4 &34397593
@@ -1233,6 +1235,7 @@ MonoBehaviour:
   priceText: {fileID: 1533019356}
   canvasGroup: {fileID: 487164855}
   priceString: "\xA599"
+  textColor: {r: 0, g: 0, b: 0, a: 1}
   initialPosition: {x: 0, y: -200}
   displayDuration: 2
   moveUpDistance: 300
@@ -1583,6 +1586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadTaxTextAnimator
   taxText: {fileID: 253357755}
+  textColor: {r: 0, g: 0, b: 0, a: 1}
   displayDelay: 0.5
   fadeInDuration: 1
   displayDuration: 3
@@ -1642,6 +1646,7 @@ MonoBehaviour:
   priceText: {fileID: 803466828}
   canvasGroup: {fileID: 1186756433}
   priceString: "\xA599"
+  textColor: {r: 0, g: 0, b: 0, a: 1}
   initialPosition: {x: 0, y: -200}
   displayDuration: 2
   moveUpDistance: 300
@@ -1880,6 +1885,97 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1533019354}
   m_CullTransparentMesh: 1
+--- !u!1 &1746442831
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1746442834}
+  - component: {fileID: 1746442833}
+  - component: {fileID: 1746442832}
+  - component: {fileID: 1746442835}
+  m_Layer: 0
+  m_Name: CherryBlossomController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1746442832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746442831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3527438707aabb46acb9fd7b7e41e07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CherryBlossomController
+  cherryBlossomPrefab: {fileID: 6027176312696374659, guid: 4cb6c6a9a9962b0479d47e1269e577b0, type: 3}
+  spawnPosition: {fileID: 0}
+  spawnHeight: 10
+  forwardDistance: 5
+  duration: 5
+  fadeOutDuration: 1
+  densityMultiplier: 3
+  maxParticles: 1000
+  autoPlayOnStart: 1
+--- !u!114 &1746442833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746442831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3527438707aabb46acb9fd7b7e41e07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CherryBlossomController
+  cherryBlossomPrefab: {fileID: 6027176312696374659, guid: 4cb6c6a9a9962b0479d47e1269e577b0, type: 3}
+  spawnPosition: {fileID: 0}
+  spawnHeight: 13
+  forwardDistance: 10
+  duration: 5
+  fadeOutDuration: 2
+  densityMultiplier: 6
+  maxParticles: 1000
+  autoPlayOnStart: 0
+--- !u!4 &1746442834
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746442831}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -67.97274, y: 10.82217, z: -338.21002}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1746442835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746442831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53f358ca9f751e7468b5327217fba368, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CherryBlossomTester
+  cherryController: {fileID: 1746442833}
+  startKey: 99
+  stopKey: 115
 --- !u!1 &1778764119
 GameObject:
   m_ObjectHideFlags: 0
@@ -2124,3 +2220,4 @@ SceneRoots:
   - {fileID: 13793817}
   - {fileID: 1778764122}
   - {fileID: 1964602099}
+  - {fileID: 1746442834}

@@ -12,6 +12,10 @@ public class RoadTaxTextAnimator : MonoBehaviour
     [Tooltip("TextMeshPro文本组件")]
     [SerializeField] private TextMeshProUGUI taxText;
     
+    [Header("文字样式")]
+    [Tooltip("文字颜色")]
+    [SerializeField] private Color textColor = Color.black;
+    
     [Header("动画配置")]
     [Tooltip("文字显示延迟（道路稳定后多久显示）")]
     [SerializeField] private float displayDelay = 0.5f;
@@ -66,6 +70,7 @@ public class RoadTaxTextAnimator : MonoBehaviour
         if (taxText != null)
         {
             taxText.text = $"{taxAmount:F0}元税款\n={roadLength:F0}米的道路养护";
+            taxText.color = textColor; // 应用文字颜色
         }
         
         // 启动动画

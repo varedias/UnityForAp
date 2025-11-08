@@ -121,8 +121,29 @@ public class RoadManager : MonoBehaviour
         // 设置初始缩放为0
         segment.transform.localScale = Vector3.zero;
         
-        // 渐变动画
-        float duration = 3f; // 渐变持续时间（3秒）
+        // 获取所有材质用于透明度渐变
+        Renderer[] renderers = segment.GetComponentsInChildren<Renderer>();
+        List<Material> materials = new List<Material>();
+        
+        // 设置初始透明度为0
+        foreach (Renderer renderer in renderers)
+        {
+            foreach (Material mat in renderer.materials)
+            {
+                // 切换到透明模式
+                SetMaterialTransparent(mat);
+                
+                // 设置初始透明度为0
+                Color color = mat.color;
+                color.a = 0f;
+                mat.color = color;
+                
+                materials.Add(mat);
+            }
+        }
+        
+        // 渐变动画 - 拉长到 5 秒
+        float duration = 5f; // 从 3 秒拉长到 5 秒
         float elapsed = 0f;
         
         while (elapsed < duration)
@@ -136,11 +157,105 @@ public class RoadManager : MonoBehaviour
             // 更新缩放
             segment.transform.localScale = originalScale * smoothProgress;
             
+            // 更新透明度
+            foreach (Material mat in materials)
+            {
+                if (mat != null)
+                {
+                    Color color = mat.color;
+                    color.a = smoothProgress;
+                    mat.color = color;
+                }
+            }
+            
             yield return null;
         }
         
-        // 确保最终缩放正确
+        // 确保最终状态正确
         segment.transform.localScale = originalScale;
+        
+        // 恢复材质为不透明模式
+        foreach (Material mat in materials)
+        {
+            if (mat != null)
+            {
+                SetMaterialOpaque(mat);
+                Color color = mat.color;
+                color.a = 1f;
+                mat.color = color;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 设置材质为透明模式
+    /// </summary>
+    private void SetMaterialTransparent(Material mat)
+    {
+        // URP Lit Shader
+        if (mat.shader.name.Contains("Universal Render Pipeline/Lit"))
+        {
+            mat.SetFloat("_Surface", 1); // 1 = Transparent
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.renderQueue = 3000;
+            mat.SetOverrideTag("RenderType", "Transparent");
+        }
+        // Standard Shader
+        else if (mat.shader.name.Contains("Standard"))
+        {
+            mat.SetFloat("_Mode", 3); // 3 = Transparent
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.renderQueue = 3000;
+            mat.SetOverrideTag("RenderType", "Transparent");
+        }
+        // URP Simple Lit
+        else if (mat.shader.name.Contains("Simple Lit"))
+        {
+            mat.SetFloat("_Surface", 1);
+            mat.SetInt("_Blend", 0);
+            mat.renderQueue = 3000;
+        }
+        
+        mat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+    }
+    
+    /// <summary>
+    /// 设置材质为不透明模式
+    /// </summary>
+    private void SetMaterialOpaque(Material mat)
+    {
+        // URP Lit Shader
+        if (mat.shader.name.Contains("Universal Render Pipeline/Lit"))
+        {
+            mat.SetFloat("_Surface", 0); // 0 = Opaque
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            mat.SetInt("_ZWrite", 1);
+            mat.renderQueue = 2000;
+            mat.SetOverrideTag("RenderType", "Opaque");
+        }
+        // Standard Shader
+        else if (mat.shader.name.Contains("Standard"))
+        {
+            mat.SetFloat("_Mode", 0); // 0 = Opaque
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+            mat.SetInt("_ZWrite", 1);
+            mat.renderQueue = 2000;
+            mat.SetOverrideTag("RenderType", "Opaque");
+        }
+        // URP Simple Lit
+        else if (mat.shader.name.Contains("Simple Lit"))
+        {
+            mat.SetFloat("_Surface", 0);
+            mat.renderQueue = 2000;
+        }
+        
+        mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
     }
     
     /// <summary>

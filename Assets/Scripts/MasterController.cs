@@ -12,6 +12,7 @@ public class MasterController : MonoBehaviour
     [SerializeField] private StarSpawner starSpawner;
     [SerializeField] private RoadManager roadManager;
     [SerializeField] private RoadTaxTextAnimator roadTaxTextAnimator;
+    [SerializeField] private CherryBlossomController cherryBlossomController;
 
     [Header("动画配置")]
     [Tooltip("是否在启动时自动播放动画")]
@@ -19,6 +20,10 @@ public class MasterController : MonoBehaviour
     
     [Tooltip("动画开始前的延迟时间（秒）")]
     [SerializeField] private float startDelay = 0.5f;
+
+    [Header("网页交互")]
+    [Tooltip("目标价格 - 从网页接收")]
+    private float targetPrice = 0f;
 
     private bool isAnimationPlaying = false;
 
@@ -36,6 +41,9 @@ public class MasterController : MonoBehaviour
         
         if (roadTaxTextAnimator == null)
             roadTaxTextAnimator = FindObjectOfType<RoadTaxTextAnimator>();
+        
+        if (cherryBlossomController == null)
+            cherryBlossomController = FindObjectOfType<CherryBlossomController>();
 
         // 验证所有组件
         if (!ValidateComponents())
@@ -117,18 +125,27 @@ public class MasterController : MonoBehaviour
         Debug.Log($"[MasterController] 等待价签动画完成 ({priceTagDuration} 秒)...");
         yield return new WaitForSeconds(priceTagDuration);
 
-        // 4. 跳过星星生成器（已移除星星掉落动画）
-        // Debug.Log("[MasterController] 步骤 2: 启动星星生成器");
-        // starSpawner.StartSpawning();
-
-        // 5. 初始化道路管理器
-        Debug.Log("[MasterController] 步骤 2: 初始化道路系统");
+        // 4. 价签消失后，同时启动：樱花掉落 + 马路出现
+        Debug.Log("[MasterController] 步骤 2: 启动樱花掉落");
+        if (cherryBlossomController != null)
+        {
+            cherryBlossomController.StartCherryBlossom();
+        }
+        
+        Debug.Log("[MasterController] 步骤 3: 初始化道路系统（与樱花同时）");
         roadManager.Initialize();
         
-        // 6. 等待道路渐变完成并稳定（3秒渐变时间）
-        float roadFadeInDuration = 3f;
+        // 5. 等待道路渐变完成（5秒渐变时间 - 已拉长）
+        float roadFadeInDuration = 5f;
         Debug.Log($"[MasterController] 等待道路渐变完成 ({roadFadeInDuration} 秒)...");
         yield return new WaitForSeconds(roadFadeInDuration);
+        
+        // 6. 道路出现完成后，停止樱花掉落
+        Debug.Log("[MasterController] 步骤 4: 停止樱花掉落");
+        if (cherryBlossomController != null)
+        {
+            cherryBlossomController.StopCherryBlossom();
+        }
         
         // 7. 显示税款文字
         if (roadTaxTextAnimator != null)
@@ -159,6 +176,9 @@ public class MasterController : MonoBehaviour
         if (starSpawner != null)
             starSpawner.StopSpawning();
         
+        if (cherryBlossomController != null)
+            cherryBlossomController.ResetCherryBlossom();
+        
         if (roadManager != null)
             roadManager.Reset();
     }
@@ -185,5 +205,41 @@ public class MasterController : MonoBehaviour
             ResetAnimation();
             StartAnimation();
         }
+    }
+
+    // ========== 网页交互接口 ==========
+    
+    /// <summary>
+    /// 网页调用此方法设置价格（必须是这个名字！）
+    /// </summary>
+    public void SetPrice(string price)
+    {
+        Debug.Log($"[MasterController] 🌐 收到网页传来的价格: {price}");
+        
+        if (float.TryParse(price, out float parsedPrice))
+        {
+            targetPrice = parsedPrice;
+            
+            // 更新 PriceTagAnimator 的价格
+            if (priceTagAnimator != null)
+            {
+                priceTagAnimator.SetPrice(parsedPrice);
+            }
+            
+            Debug.Log($"[MasterController] ✅ 价格已设置: ¥{targetPrice:F2}");
+        }
+        else
+        {
+            Debug.LogError($"[MasterController] ❌ 价格格式错误: {price}");
+        }
+    }
+    
+    /// <summary>
+    /// 网页调用此方法播放动画（必须是这个名字！）
+    /// </summary>
+    public void PlayAnimation()
+    {
+        Debug.Log($"[MasterController] 🌐 收到网页指令: 播放动画 (价格: ¥{targetPrice:F2})");
+        StartAnimation();
     }
 }

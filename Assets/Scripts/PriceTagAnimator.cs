@@ -16,7 +16,13 @@ public class PriceTagAnimator : MonoBehaviour
 
     [Header("价格配置")]
     [Tooltip("显示的价格文本")]
-    [SerializeField] private string priceString = "该商品税款为¥99";
+    [SerializeField] private string priceString = "¥99.00";
+    
+    [Tooltip("文字颜色")]
+    [SerializeField] private Color textColor = Color.black;
+    
+    [Tooltip("实际价格数值（从网页接收）")]
+    private float priceValue = 99f;
 
     [Header("动画参数")]
     [Tooltip("初始位置偏移（相对于屏幕中央，Y轴负值表示偏下）")]
@@ -63,10 +69,11 @@ public class PriceTagAnimator : MonoBehaviour
     /// </summary>
     private void InitializeUI()
     {
-        // 设置价格文本
+        // 设置价格文本和颜色
         if (priceText != null)
         {
             priceText.text = priceString;
+            priceText.color = textColor;
         }
 
         // 设置初始位置
@@ -241,6 +248,22 @@ public class PriceTagAnimator : MonoBehaviour
             priceText.text = newPrice;
         }
         Debug.Log($"[PriceTagAnimator] 价格已更新为: {newPrice}");
+    }
+    
+    /// <summary>
+    /// 设置价格数值（从网页接收）
+    /// </summary>
+    public void SetPrice(float price)
+    {
+        priceValue = price;
+        priceString = $"¥{price:F2}";  // 只显示价格，不要多余文字
+        
+        if (priceText != null)
+        {
+            priceText.text = priceString;
+        }
+        
+        Debug.Log($"[PriceTagAnimator] 💰 价格已设置为: ¥{price:F2}");
     }
 
     /// <summary>
