@@ -12,7 +12,7 @@ public class MasterController : MonoBehaviour
     [SerializeField] private StarSpawner starSpawner;
     [SerializeField] private RoadManager roadManager;
     [SerializeField] private RoadTaxTextAnimator roadTaxTextAnimator;
-    [SerializeField] private CherryBlossomController cherryBlossomController;
+    [SerializeField] private SimpleFallingLeavesController fallingLeavesController;
 
     [Header("动画配置")]
     [Tooltip("是否在启动时自动播放动画")]
@@ -42,8 +42,8 @@ public class MasterController : MonoBehaviour
         if (roadTaxTextAnimator == null)
             roadTaxTextAnimator = FindObjectOfType<RoadTaxTextAnimator>();
         
-        if (cherryBlossomController == null)
-            cherryBlossomController = FindObjectOfType<CherryBlossomController>();
+        if (fallingLeavesController == null)
+            fallingLeavesController = FindObjectOfType<SimpleFallingLeavesController>();
 
         // 验证所有组件
         if (!ValidateComponents())
@@ -125,29 +125,37 @@ public class MasterController : MonoBehaviour
         Debug.Log($"[MasterController] 等待价签动画完成 ({priceTagDuration} 秒)...");
         yield return new WaitForSeconds(priceTagDuration);
 
-        // 4. 价签消失后，同时启动：樱花掉落 + 马路出现
-        Debug.Log("[MasterController] 步骤 2: 启动樱花掉落");
-        if (cherryBlossomController != null)
+        // 4. 价签消失后，启动落叶效果
+        Debug.Log("[MasterController] 步骤 2: 启动落叶效果");
+        if (fallingLeavesController != null)
         {
-            cherryBlossomController.StartCherryBlossom();
+            fallingLeavesController.StartFallingLeaves();
         }
         
-        Debug.Log("[MasterController] 步骤 3: 初始化道路系统（与樱花同时）");
+        // 等待 5 秒让落叶单独下落
+        Debug.Log("[MasterController] 等待 5 秒让落叶下落...");
+        yield return new WaitForSeconds(5f);
+        
+        // 5. 开始淡出所有落叶（2秒淡出）
+        Debug.Log("[MasterController] 步骤 3: 开始淡出落叶");
+        if (fallingLeavesController != null)
+        {
+            fallingLeavesController.FadeOutLeaves(2f);
+        }
+        
+        // 等待淡出完成（2秒淡出 + 0.5秒缓冲）
+        yield return new WaitForSeconds(2.5f);
+        
+        // 6. 初始化道路系统
+        Debug.Log("[MasterController] 步骤 4: 初始化道路系统");
         roadManager.Initialize();
         
-        // 5. 等待道路渐变完成（5秒渐变时间 - 已拉长）
-        float roadFadeInDuration = 5f;
+        // 7. 等待道路渐变完成
+        float roadFadeInDuration = 2f;
         Debug.Log($"[MasterController] 等待道路渐变完成 ({roadFadeInDuration} 秒)...");
         yield return new WaitForSeconds(roadFadeInDuration);
         
-        // 6. 道路出现完成后，停止樱花掉落
-        Debug.Log("[MasterController] 步骤 4: 停止樱花掉落");
-        if (cherryBlossomController != null)
-        {
-            cherryBlossomController.StopCherryBlossom();
-        }
-        
-        // 7. 显示税款文字
+        // 8. 显示税款文字
         if (roadTaxTextAnimator != null)
         {
             Debug.Log("[MasterController] 步骤 3: 显示税款文字");
@@ -176,8 +184,8 @@ public class MasterController : MonoBehaviour
         if (starSpawner != null)
             starSpawner.StopSpawning();
         
-        if (cherryBlossomController != null)
-            cherryBlossomController.ResetCherryBlossom();
+        if (fallingLeavesController != null)
+            fallingLeavesController.ResetFallingLeaves();
         
         if (roadManager != null)
             roadManager.Reset();
